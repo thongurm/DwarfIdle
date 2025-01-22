@@ -39,36 +39,6 @@
 
 
     <script>
-		// Function to save the game state
-		function saveGame() {
-			const gameState = {
-				ore: ore,
-				refined: refined,
-				crafted: crafted,
-			};
-			localStorage.setItem('dwarfIdleSave', JSON.stringify(gameState));
-			alert('Game saved!');
-		}
-
-		// Function to load the game state
-		function loadGame() {
-			const savedState = localStorage.getItem('dwarfIdleSave');
-			if (savedState) {
-				const gameState = JSON.parse(savedState);
-				ore = gameState.ore || 0;
-				refined = gameState.refined || 0;
-				crafted = gameState.crafted || 0;
-
-				// Update the UI
-				oreDisplay.textContent = ore;
-				refinedDisplay.textContent = refined;
-				craftedDisplay.textContent = crafted;
-
-				alert('Game loaded!');
-			} else {
-				alert('No saved game found.');
-			}
-		}
 
         // Resource counts
         let ore = 0;
