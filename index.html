@@ -24,16 +24,24 @@
 </head>
 <body>
     <h1>Dwarf Idle</h1>
+	
+	<div id="messageLog" style="border: 1px solid #ccc; padding: 10px; height: 100px; overflow-y: auto;">
+		<p>Welcome to Dwarf Idle!</p>
+	</div>
 
     <div id="resources">
         <div class="resource">Ore: <span id="ore">0</span></div>
         <div class="resource">Refined Materials: <span id="refined">0</span></div>
         <div class="resource">Crafted Items: <span id="crafted">0</span></div>
+		<div class="resource">Gold: <span id="gold">0</span></div>
+		<div class="resource">Dwarves: <span id="dwarves">0</span></div>
     </div>
 
     <button class="button" id="mineButton">Mine Ore</button>
     <button class="button" id="refineButton">Refine Ore</button>
     <button class="button" id="craftButton">Craft Item</button>
+	<button class="button" id="sellButton">Sell Crafted Items</button>
+	<button class="button" id="hireDwarfButton">Hire Dwarf (Cost: 10 Gold)</button>
 	<button class="button" id="saveButton">Save Game</button>
 	<button class="button" id="loadButton">Load Game</button>
 
@@ -44,11 +52,19 @@
         let ore = 0;
         let refined = 0;
         let crafted = 0;
+		let gold = 0;
+		
+		// Game variables
+		let dwarves = 0; // Number of hired dwarves
+		const dwarfCost = 10; // Cost to hire one dwarf
+		const orePerSecond = 1; // Ore mined by each dwarf per second
 
         // Buttons
         const mineButton = document.getElementById('mineButton');
         const refineButton = document.getElementById('refineButton');
         const craftButton = document.getElementById('craftButton');
+		const sellButton = document.getElementById('sellButton');
+		const hireDwarfButton = document.getElementById('hireDwarfButton');
 		
 		// Save button logic
 		const saveButton = document.getElementById('saveButton');
@@ -57,9 +73,11 @@
 				ore: ore,
 				refined: refined,
 				crafted: crafted,
+				gold: gold,
+				dwarves: dwarves,
 			};
 			localStorage.setItem('dwarfIdleSave', JSON.stringify(gameState));
-			alert('Game saved!');
+			displayMessage('Game saved!');
 		});
 
 		// Load button logic
@@ -71,23 +89,40 @@
 				ore = gameState.ore || 0;
 				refined = gameState.refined || 0;
 				crafted = gameState.crafted || 0;
-
+				gold = gameState.gold || 0;
+				dwarves = gameState.dwarves || 0;
 				// Update the UI
 				oreDisplay.textContent = ore;
 				refinedDisplay.textContent = refined;
 				craftedDisplay.textContent = crafted;
-
-				alert('Game loaded!');
+				goldDisplay.textContent = gold;
+				dwarvesDisplay.textContent = dwarves;
+				displayMessage('Game loaded!');
 			} else {
-				alert('No saved game found.');
+				displayMessage('No saved game found.');
 			}
 		});
+		// Function to display messages in the log
+		function displayMessage(message) {
+			const messageLog = document.getElementById('messageLog');
+			const timestamp = new Date().toLocaleTimeString(); // Add a timestamp to messages
+			const newMessage = document.createElement('p');
+			newMessage.textContent = `[${timestamp}] ${message}`;
+			messageLog.appendChild(newMessage);
 
+			// Ensure the message log scrolls to the latest message
+			messageLog.scrollTop = messageLog.scrollHeight;
+		}
+
+		// Example usage:
+		displayMessage("Game started!");
 
         // Resource displays
         const oreDisplay = document.getElementById('ore');
         const refinedDisplay = document.getElementById('refined');
         const craftedDisplay = document.getElementById('crafted');
+		const goldDisplay = document.getElementById('gold');
+		const dwarvesDisplay = document.getElementById('dwarves');
 
         // Mining logic
         mineButton.addEventListener('click', () => {
@@ -103,7 +138,7 @@
                 oreDisplay.textContent = ore;
                 refinedDisplay.textContent = refined;
             } else {
-                alert('Not enough ore to refine!');
+                displayMessage('Not enough ore to refine!');
             }
         });
 
@@ -115,9 +150,53 @@
                 refinedDisplay.textContent = refined;
                 craftedDisplay.textContent = crafted;
             } else {
-                alert('Not enough refined materials to craft!');
+                displayMessage('Not enough refined materials to craft!');
             }
         });
+		
+		// Selling logic
+		sellButton.addEventListener('click', () => {
+			if (crafted > 0) {
+				gold += crafted * 5; // Each crafted item sells for 5 gold
+				crafted = 0;
+				craftedDisplay.textContent = crafted;
+				goldDisplay.textContent = gold;
+			} else {
+				displayMessage('No crafted items to sell!');
+			}
+		});
+		
+		// Hire dwarf logic
+		hireDwarfButton.addEventListener('click', () => {
+			if (gold >= dwarfCost) {
+				gold -= dwarfCost;
+				dwarves += 1;
+				goldDisplay.textContent = gold;
+				dwarvesDisplay.textContent = dwarves;
+				displayMessage(`You hired a dwarf! Total dwarves: ${dwarves}`);
+			} else {
+				displayMessage('Not enough gold to hire a dwarf!');
+			}
+		});
+		
+		// Automated mining by dwarves
+		setInterval(() => {
+			if (dwarves > 0) {
+				ore += dwarves * orePerSecond;
+				oreDisplay.textContent = ore;
+			}
+		}, 1000); // Runs every second
+		
+		
+		// Auto-save function
+		function autoSave() {
+			saveGame(); // Call your existing saveGame function
+			displayMessage("Game auto-saved!"); // Provide feedback in the message log
+		}
+
+		// Set an interval for auto-save (e.g., every 30 seconds)
+		setInterval(autoSave, 30000); // 30000ms = 30 seconds
+		
 		
 		// Auto-load the game state
 		loadButton.click(); // Simulate a click on the load button
