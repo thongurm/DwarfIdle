@@ -36,6 +36,37 @@
     <button class="button" id="craftButton">Craft Item</button>
 
     <script>
+		// Function to save the game state
+		function saveGame() {
+			const gameState = {
+				ore: ore,
+				refined: refined,
+				crafted: crafted,
+			};
+			localStorage.setItem('dwarfIdleSave', JSON.stringify(gameState));
+			alert('Game saved!');
+		}
+
+		// Function to load the game state
+		function loadGame() {
+			const savedState = localStorage.getItem('dwarfIdleSave');
+			if (savedState) {
+				const gameState = JSON.parse(savedState);
+				ore = gameState.ore || 0;
+				refined = gameState.refined || 0;
+				crafted = gameState.crafted || 0;
+
+				// Update the UI
+				oreDisplay.textContent = ore;
+				refinedDisplay.textContent = refined;
+				craftedDisplay.textContent = crafted;
+
+				alert('Game loaded!');
+			} else {
+				alert('No saved game found.');
+			}
+		}
+
         // Resource counts
         let ore = 0;
         let refined = 0;
@@ -45,6 +76,40 @@
         const mineButton = document.getElementById('mineButton');
         const refineButton = document.getElementById('refineButton');
         const craftButton = document.getElementById('craftButton');
+		
+		// Save button logic
+		const saveButton = document.getElementById('saveButton');
+		saveButton.addEventListener('click', () => {
+			const gameState = {
+				ore: ore,
+				refined: refined,
+				crafted: crafted,
+			};
+			localStorage.setItem('dwarfIdleSave', JSON.stringify(gameState));
+			alert('Game saved!');
+		});
+
+		// Load button logic
+		const loadButton = document.getElementById('loadButton');
+		loadButton.addEventListener('click', () => {
+			const savedState = localStorage.getItem('dwarfIdleSave');
+			if (savedState) {
+				const gameState = JSON.parse(savedState);
+				ore = gameState.ore || 0;
+				refined = gameState.refined || 0;
+				crafted = gameState.crafted || 0;
+
+				// Update the UI
+				oreDisplay.textContent = ore;
+				refinedDisplay.textContent = refined;
+				craftedDisplay.textContent = crafted;
+
+				alert('Game loaded!');
+			} else {
+				alert('No saved game found.');
+			}
+		});
+
 
         // Resource displays
         const oreDisplay = document.getElementById('ore');
@@ -80,6 +145,9 @@
                 alert('Not enough refined materials to craft!');
             }
         });
+		
+		// Auto-load the game state
+		loadButton.click(); // Simulate a click on the load button
     </script>
 </body>
 </html>
